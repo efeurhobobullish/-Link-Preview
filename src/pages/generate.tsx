@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Pattern } from "@/components/ui";
 import { Loader2, LinkIcon, Globe, ImageIcon } from "lucide-react";
 
+
 export default function Generate() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
