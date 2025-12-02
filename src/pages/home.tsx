@@ -6,17 +6,15 @@ import { Github, ArrowRight } from "lucide-react";
 export default function Home() {
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden bg-background">
-      {/* 1. Pattern covers the background. 
-        Assuming Pattern accepts children, otherwise, self-close it and put content in a sibling div with z-index 
-      */}
-      <Pattern className="w-full h-full">
+      {/* Fixed: Removed className prop from Pattern */}
+      <Pattern>
         
-        {/* 2. Mode Toggle positioned absolutely at Top Right */}
+        {/* Mode Toggle positioned absolutely at Top Right */}
         <div className="absolute top-6 right-6 z-50">
           <ModeToggle />
         </div>
 
-        {/* 3. Main Centered Content */}
+        {/* Main Centered Content */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 space-y-8">
           
           {/* Top GitHub button */}
