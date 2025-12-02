@@ -5,59 +5,67 @@ import { Github, ArrowRight } from "lucide-react";
 
 export default function Home() {
   return (
-    <>
-      <Pattern>
-        <div className="h-[100dvh] relative z-10 center flex-col gap-10 text-center layout">
-          {/* Top GitHub button */}
-          <div className="center gap-2">
-            <a
-              href="https://github.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border border-line rounded-full bg-secondary/70 px-4 py-2 center gap-20 inline-flex"
-            >
-              <div className="center gap-2">
-                <Github size={18} className="text-main/70" />
-                <p className="text-sm">View on GitHub</p>
-              </div>
-              <ArrowRight size={20} className="text-main/70" />
-            </a>
-          </div>
+    <div className="relative w-full h-[100dvh] overflow-hidden bg-background">
+      {/* 1. Pattern covers the background. 
+        Assuming Pattern accepts children, otherwise, self-close it and put content in a sibling div with z-index 
+      */}
+      <Pattern className="w-full h-full">
+        
+        {/* 2. Mode Toggle positioned absolutely at Top Right */}
+        <div className="absolute top-6 right-6 z-50">
+          <ModeToggle />
+        </div>
 
-          {/* Main Title */}
-          <div className="space-y-2">
-            <h1 className="text-6xl md:leading-[80px] leading-[60px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-main to-main/70 dark:to-main/50">
-              Universal Link Preview Generator
+        {/* 3. Main Centered Content */}
+        <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 space-y-8">
+          
+          {/* Top GitHub button */}
+          <a
+            href="https://github.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center justify-between gap-4 border border-border/50 rounded-full bg-secondary/30 backdrop-blur-sm px-4 py-1.5 transition-all hover:bg-secondary/50 hover:border-border"
+          >
+            <div className="flex items-center gap-2">
+              <Github size={16} className="text-foreground/80" />
+              <span className="text-sm text-foreground/80 font-medium">View on GitHub</span>
+            </div>
+            <ArrowRight size={16} className="text-foreground/50 group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
+          </a>
+
+          {/* Main Title & Subtitle */}
+          <div className="text-center max-w-3xl space-y-4">
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/50">
+              Universal Link <br className="hidden md:block" /> Preview Generator
             </h1>
-            <p className="text-muted text-sm">
-              Paste any URL and instantly get metadata, OG tags, and social previews.
+            <p className="text-muted-foreground text-lg md:text-xl max-w-xl mx-auto leading-relaxed">
+              Paste any URL and instantly get metadata, OG tags, and social previews for your projects.
             </p>
           </div>
 
           {/* Feature Tags */}
-          <ul className="center flex-wrap gap-2">
+          <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
             {libraries.map((library) => (
-              <li
+              <span
                 key={library}
-                className="text-sm text-muted dark:bg-secondary border border-line rounded-full px-4 py-2"
+                className="text-xs md:text-sm text-muted-foreground bg-secondary/50 border border-border/50 rounded-full px-3 py-1"
               >
                 {library}
-              </li>
+              </span>
             ))}
-          </ul>
+          </div>
 
           {/* CTA Button */}
           <a
             href="/generate"
-            className="mt-4 px-6 py-3 rounded-full bg-main text-white text-sm font-medium hover:bg-main/90 transition inline-flex items-center gap-2"
+            className="mt-4 px-8 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-all flex items-center gap-2 shadow-lg shadow-primary/20"
           >
             Start Generating
-            <ArrowRight size={16} />
+            <ArrowRight size={18} />
           </a>
 
-          <ModeToggle />
         </div>
       </Pattern>
-    </>
+    </div>
   );
 }
