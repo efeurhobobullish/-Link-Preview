@@ -1,22 +1,20 @@
 export default function Pattern({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-[100dvh] w-full bg-background relative overflow-y-scroll">
+    <>
+      {/* Fixed pattern background that stays stationary */}
       <div
-        className="absolute inset-0 z-0"
+        className="fixed inset-0 z-0 pointer-events-none bg-background"
         style={{
           backgroundImage: `
-    linear-gradient(to right, var(--foreground) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--foreground) 1px, transparent 1px)
-  `,
-          backgroundSize: "20px 30px",
-          WebkitMaskImage:
-            "radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)",
-          maskImage:
-            "radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)",
+            repeating-linear-gradient(22.5deg, transparent, transparent 2px, rgba(75, 85, 99, 0.06) 2px, rgba(75, 85, 99, 0.06) 3px, transparent 3px, transparent 8px),
+            repeating-linear-gradient(67.5deg, transparent, transparent 2px, rgba(107, 114, 128, 0.05) 2px, rgba(107, 114, 128, 0.05) 3px, transparent 3px, transparent 8px),
+            repeating-linear-gradient(112.5deg, transparent, transparent 2px, rgba(55, 65, 81, 0.04) 2px, rgba(55, 65, 81, 0.04) 3px, transparent 3px, transparent 8px),
+            repeating-linear-gradient(157.5deg, transparent, transparent 2px, rgba(31, 41, 55, 0.03) 2px, rgba(31, 41, 55, 0.03) 3px, transparent 3px, transparent 8px)
+          `,
         }}
       />
-
+      {/* Content that scrolls over the fixed pattern */}
       <div className="relative z-10">{children}</div>
-    </div>
+    </>
   );
 }
