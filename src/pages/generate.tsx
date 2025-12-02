@@ -47,7 +47,7 @@ export default function Generate() {
           </p>
         </div>
 
-        {/* URL Input Box */}
+        {/* URL Input */}
         <div className="max-w-xl mx-auto mb-12 flex gap-2">
           <input
             type="text"
@@ -65,18 +65,16 @@ export default function Generate() {
           </button>
         </div>
 
-        {/* Error Message */}
+        {/* Error */}
         {error && (
-          <div className="text-center mb-10 text-red-500 text-sm">
-            {error}
-          </div>
+          <div className="text-center mb-10 text-red-500 text-sm">{error}</div>
         )}
 
         {/* Results */}
         {data && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-            {/* LEFT: Metadata */}
+            {/* Metadata */}
             <div className="border border-line rounded-2xl p-6 bg-secondary/40 backdrop-blur">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Globe size={18} className="text-main" />
@@ -84,27 +82,13 @@ export default function Generate() {
               </h2>
 
               <div className="space-y-3 text-sm">
-                <div>
-                  <p className="text-muted">Title</p>
-                  <p className="font-medium">{data.title || "—"}</p>
-                </div>
-
-                <div>
-                  <p className="text-muted">Description</p>
-                  <p className="font-medium">{data.description || "—"}</p>
-                </div>
-
-                <div>
-                  <p className="text-muted">Domain</p>
-                  <p className="font-medium">{data.domain || "—"}</p>
-                </div>
-
-                <div>
-                  <p className="text-muted">Keywords</p>
-                  <p className="font-medium">
-                    {data.keywords?.length ? data.keywords.join(", ") : "—"}
-                  </p>
-                </div>
+                <Detail label="Title" value={data.title} />
+                <Detail label="Description" value={data.description} />
+                <Detail label="Domain" value={data.domain} />
+                <Detail 
+                  label="Keywords" 
+                  value={data.keywords?.length ? data.keywords.join(", ") : "—"} 
+                />
 
                 <div>
                   <p className="text-muted">OG Image</p>
@@ -121,7 +105,7 @@ export default function Generate() {
               </div>
             </div>
 
-            {/* RIGHT: Screenshot Preview */}
+            {/* Screenshot */}
             <div className="border border-line rounded-2xl p-6 bg-secondary/40 backdrop-blur">
               <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <ImageIcon size={18} className="text-main" />
@@ -141,7 +125,7 @@ export default function Generate() {
           </div>
         )}
 
-        {/* Social preview mockups section (simple + clean) */}
+        {/* Social previews */}
         {data && (
           <div className="mt-16">
             <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
@@ -151,60 +135,42 @@ export default function Generate() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-              {/* WhatsApp */}
-              <PreviewCard
-                title="WhatsApp Preview"
-                data={data}
-                platform="whatsapp"
-              />
-
-              {/* Twitter */}
-              <PreviewCard
-                title="Twitter / X Card"
-                data={data}
-                platform="twitter"
-              />
-
-              {/* Discord */}
-              <PreviewCard
-                title="Discord Embed"
-                data={data}
-                platform="discord"
-              />
-
-              {/* Facebook */}
-              <PreviewCard
-                title="Facebook Preview"
-                data={data}
-                platform="facebook"
-              />
-
-              {/* LinkedIn */}
-              <PreviewCard
-                title="LinkedIn Card"
-                data={data}
-                platform="linkedin"
-              />
+              <PreviewCard title="WhatsApp Preview" data={data} />
+              <PreviewCard title="Twitter / X Card" data={data} />
+              <PreviewCard title="Discord Embed" data={data} />
+              <PreviewCard title="Facebook Preview" data={data} />
+              <PreviewCard title="LinkedIn Card" data={data} />
 
             </div>
           </div>
         )}
+
       </div>
     </Pattern>
   );
 }
 
 /* ---------------------------------------------
-   Social Preview Card Component (beautiful, neat)
------------------------------------------------*/
+   Metadata detail component
+----------------------------------------------*/
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-muted">{label}</p>
+      <p className="font-medium">{value || "—"}</p>
+    </div>
+  );
+}
+
+/* ---------------------------------------------
+   Social Preview Card component (clean & neat)
+----------------------------------------------*/
 function PreviewCard({
   title,
   data,
-  platform,
 }: {
   title: string;
   data: any;
-  platform: string;
 }) {
   return (
     <div className="border border-line rounded-xl p-4 bg-secondary/40 backdrop-blur">
@@ -212,6 +178,7 @@ function PreviewCard({
 
       <div className="rounded-lg border border-line bg-secondary/60 p-3 text-left text-sm">
         <p className="font-semibold truncate">{data.title || "Untitled"}</p>
+
         <p className="text-muted text-xs mt-1 line-clamp-2">
           {data.description || "No description available"}
         </p>
