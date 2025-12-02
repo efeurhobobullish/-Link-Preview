@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import { ScrollToTop } from "@/components/ui";
-import { Home } from "@/pages";
+import { Home, Generate } from "@/pages";
 
 export default function App() {
   return (
@@ -10,6 +10,7 @@ export default function App() {
       <Toaster position="top-center" richColors />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/generate" element={<Generate />} />
       </Routes>
     </>
   );
