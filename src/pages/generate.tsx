@@ -30,6 +30,7 @@ export default function Generate() {
 
     setLoading(true);
     setError("");
+
     // Revoke old screenshot URL to avoid memory leaks
     if (data?.screenshot) {
       URL.revokeObjectURL(data.screenshot);
@@ -124,11 +125,11 @@ export default function Generate() {
         {data && (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              {/* Metadata (client-side only) */}
+              {/* Metadata (client-side only, no image here) */}
               <div className="border border-line rounded-2xl p-6 bg-secondary/40 backdrop-blur">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <Globe size={18} className="text-main" />
-                  Metadata (Generated)
+                  Link Details
                 </h2>
 
                 <div className="space-y-3 text-sm">
@@ -142,23 +143,10 @@ export default function Generate() {
                     label="Keywords"
                     value="No keywords provided by the API."
                   />
-
-                  <div>
-                    <p className="text-muted">Preview Image</p>
-                    {data.screenshot ? (
-                      <img
-                        src={data.screenshot}
-                        alt="Preview"
-                        className="w-full rounded-lg mt-2 border border-line"
-                      />
-                    ) : (
-                      <p className="font-medium">—</p>
-                    )}
-                  </div>
                 </div>
               </div>
 
-              {/* Screenshot */}
+              {/* Screenshot (only place we render the image) */}
               <div className="border border-line rounded-2xl p-6 bg-secondary/40 backdrop-blur">
                 <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <ImageIcon size={18} className="text-main" />
@@ -177,7 +165,7 @@ export default function Generate() {
               </div>
             </div>
 
-            {/* Social previews */}
+            {/* Social previews (text-only, no screenshot duplication) */}
             <div className="mt-16">
               <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
                 <LinkIcon size={18} className="text-main" />
@@ -212,8 +200,7 @@ function Detail({ label, value }: { label: string; value?: string }) {
 }
 
 /* ---------------------------------------------
-   Social Preview Card component
-   Uses only URL, domain, and screenshot
+   Social Preview Card component (no image)
 ----------------------------------------------*/
 function PreviewCard({
   title,
@@ -222,29 +209,18 @@ function PreviewCard({
   title: string;
   data: LinkPreview;
 }) {
+  const displayTitle = data.domain || data.url || "Untitled";
+
   return (
     <div className="border border-line rounded-xl p-4 bg-secondary/40 backdrop-blur">
       <p className="text-sm font-medium mb-3">{title}</p>
 
       <div className="rounded-lg border border-line bg-secondary/60 p-3 text-left text-sm">
-        {/* Use URL as "title" */}
-        <p className="font-semibold truncate">
-          {data.domain || data.url || "Untitled"}
-        </p>
+        <p className="font-semibold truncate">{displayTitle}</p>
 
-        {/* Simple description since API provides none */}
         <p className="text-muted text-xs mt-1 line-clamp-2">
-          Live preview generated for this link. No description provided by the
-          API.
+          Live preview generated for this link. No description provided by the API.
         </p>
-
-        {data.screenshot && (
-          <img
-            src={data.screenshot}
-            alt="preview"
-            className="rounded-md w-full mt-3 border border-line"
-          />
-        )}
 
         <p className="text-[11px] text-muted mt-2">
           {data.domain || data.url || "—"}
