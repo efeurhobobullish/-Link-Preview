@@ -19,7 +19,7 @@ export default function Generate() {
     setData(null);
 
     try {
-      const res = await fetch(`/api/preview?url=${encodeURIComponent(url)}`);
+      const res = await fetch(`https://api.empiretech.net.ng/api/search/ssweb?url=${encodeURIComponent(url)}`);
       const json = await res.json();
 
       if (!res.ok) {
