@@ -1,50 +1,99 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pattern } from "@/components/ui";
 import { Loader2, LinkIcon, Globe, ImageIcon } from "lucide-react";
 
+interface LinkPreview {
+  url: string;
+  domain: string;
+  screenshot: string; // object URL created from the image blob
+}
 
 export default function Generate() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<LinkPreview | null>(null);
   const [error, setError] = useState("");
+
+  // Clean up object URLs when component unmounts or screenshot changes
+  useEffect(() => {
+    return () => {
+      if (data?.screenshot) {
+        URL.revokeObjectURL(data.screenshot);
+      }
+    };
+  }, [data?.screenshot]);
 
   const handleGenerate = async () => {
     if (!url.trim()) return;
 
     setLoading(true);
     setError("");
+    // Revoke old screenshot URL to avoid memory leaks
+    if (data?.screenshot) {
+      URL.revokeObjectURL(data.screenshot);
+    }
     setData(null);
 
     try {
-      const res = await fetch(`https://api.empiretech.net.ng/api/search/ssweb?url=${encodeURIComponent(url)}`);
-      const json = await res.json();
+      const res = await fetch(
+        `https://api.empiretech.net.ng/api/search/ssweb?url=${encodeURIComponent(
+          url
+        )}`
+      );
 
       if (!res.ok) {
-        setError(json.error || "Something went wrong.");
-      } else {
-        setData(json);
+        setError("Something went wrong while generating the preview.");
+        return;
       }
-    } catch (err) {
-      setError("Failed to fetch preview.");
-    }
 
-    setLoading(false);
+      const contentType = res.headers.get("content-type") || "";
+
+      if (!contentType.startsWith("image/")) {
+        setError("The API did not return an image.");
+        return;
+      }
+
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+
+      // Derive domain from the entered URL (client-side)
+      let domain = "";
+      try {
+        const normalized =
+          url.startsWith("http://") || url.startsWith("https://")
+            ? url
+            : `https://${url}`;
+        const parsed = new URL(normalized);
+        domain = parsed.hostname.replace(/^www\./, "");
+      } catch {
+        domain = "";
+      }
+
+      setData({
+        url,
+        domain,
+        screenshot: objectUrl,
+      });
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch preview.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Pattern>
       <div className="min-h-[100dvh] layout py-20 relative z-10">
-
         {/* Page Title */}
         <div className="text-center mb-10">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-main to-main/60 bg-clip-text text-transparent">
             Generate Link Preview
           </h1>
           <p className="text-muted text-sm mt-2">
-            Paste any URL to extract metadata, screenshots, and social previews.
+            Paste any URL to generate a live screenshot and simple social preview.
           </p>
         </div>
 
@@ -73,79 +122,78 @@ export default function Generate() {
 
         {/* Results */}
         {data && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              {/* Metadata (client-side only) */}
+              <div className="border border-line rounded-2xl p-6 bg-secondary/40 backdrop-blur">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Globe size={18} className="text-main" />
+                  Metadata (Generated)
+                </h2>
 
-            {/* Metadata */}
-            <div className="border border-line rounded-2xl p-6 bg-secondary/40 backdrop-blur">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Globe size={18} className="text-main" />
-                Metadata
-              </h2>
+                <div className="space-y-3 text-sm">
+                  <Detail label="URL" value={data.url} />
+                  <Detail label="Domain" value={data.domain || "Unknown"} />
+                  <Detail
+                    label="Description"
+                    value="No description provided by the API."
+                  />
+                  <Detail
+                    label="Keywords"
+                    value="No keywords provided by the API."
+                  />
 
-              <div className="space-y-3 text-sm">
-                <Detail label="Title" value={data.title} />
-                <Detail label="Description" value={data.description} />
-                <Detail label="Domain" value={data.domain} />
-                <Detail 
-                  label="Keywords" 
-                  value={data.keywords?.length ? data.keywords.join(", ") : "—"} 
-                />
-
-                <div>
-                  <p className="text-muted">OG Image</p>
-                  {data.image ? (
-                    <img
-                      src={data.image}
-                      alt="OG Image"
-                      className="w-full rounded-lg mt-2"
-                    />
-                  ) : (
-                    <p className="font-medium">—</p>
-                  )}
+                  <div>
+                    <p className="text-muted">Preview Image</p>
+                    {data.screenshot ? (
+                      <img
+                        src={data.screenshot}
+                        alt="Preview"
+                        className="w-full rounded-lg mt-2 border border-line"
+                      />
+                    ) : (
+                      <p className="font-medium">—</p>
+                    )}
+                  </div>
                 </div>
+              </div>
+
+              {/* Screenshot */}
+              <div className="border border-line rounded-2xl p-6 bg-secondary/40 backdrop-blur">
+                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <ImageIcon size={18} className="text-main" />
+                  Website Screenshot
+                </h2>
+
+                {data.screenshot ? (
+                  <img
+                    src={data.screenshot}
+                    alt="Website screenshot"
+                    className="rounded-xl w-full border border-line"
+                  />
+                ) : (
+                  <p className="text-muted text-sm">No screenshot available.</p>
+                )}
               </div>
             </div>
 
-            {/* Screenshot */}
-            <div className="border border-line rounded-2xl p-6 bg-secondary/40 backdrop-blur">
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <ImageIcon size={18} className="text-main" />
-                Website Screenshot
+            {/* Social previews */}
+            <div className="mt-16">
+              <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
+                <LinkIcon size={18} className="text-main" />
+                Social Previews
               </h2>
 
-              {data.screenshot ? (
-                <img
-                  src={data.screenshot}
-                  alt="Website screenshot"
-                  className="rounded-xl w-full border border-line"
-                />
-              ) : (
-                <p className="text-muted text-sm">No screenshot available.</p>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <PreviewCard title="WhatsApp Preview" data={data} />
+                <PreviewCard title="Twitter / X Card" data={data} />
+                <PreviewCard title="Discord Embed" data={data} />
+                <PreviewCard title="Facebook Preview" data={data} />
+                <PreviewCard title="LinkedIn Card" data={data} />
+              </div>
             </div>
-          </div>
+          </>
         )}
-
-        {/* Social previews */}
-        {data && (
-          <div className="mt-16">
-            <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
-              <LinkIcon size={18} className="text-main" />
-              Social Previews
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-              <PreviewCard title="WhatsApp Preview" data={data} />
-              <PreviewCard title="Twitter / X Card" data={data} />
-              <PreviewCard title="Discord Embed" data={data} />
-              <PreviewCard title="Facebook Preview" data={data} />
-              <PreviewCard title="LinkedIn Card" data={data} />
-
-            </div>
-          </div>
-        )}
-
       </div>
     </Pattern>
   );
@@ -154,45 +202,53 @@ export default function Generate() {
 /* ---------------------------------------------
    Metadata detail component
 ----------------------------------------------*/
-function Detail({ label, value }: { label: string; value: string }) {
+function Detail({ label, value }: { label: string; value?: string }) {
   return (
     <div>
       <p className="text-muted">{label}</p>
-      <p className="font-medium">{value || "—"}</p>
+      <p className="font-medium break-words">{value || "—"}</p>
     </div>
   );
 }
 
 /* ---------------------------------------------
-   Social Preview Card component (clean & neat)
+   Social Preview Card component
+   Uses only URL, domain, and screenshot
 ----------------------------------------------*/
 function PreviewCard({
   title,
   data,
 }: {
   title: string;
-  data: any;
+  data: LinkPreview;
 }) {
   return (
     <div className="border border-line rounded-xl p-4 bg-secondary/40 backdrop-blur">
       <p className="text-sm font-medium mb-3">{title}</p>
 
       <div className="rounded-lg border border-line bg-secondary/60 p-3 text-left text-sm">
-        <p className="font-semibold truncate">{data.title || "Untitled"}</p>
-
-        <p className="text-muted text-xs mt-1 line-clamp-2">
-          {data.description || "No description available"}
+        {/* Use URL as "title" */}
+        <p className="font-semibold truncate">
+          {data.domain || data.url || "Untitled"}
         </p>
 
-        {data.image && (
+        {/* Simple description since API provides none */}
+        <p className="text-muted text-xs mt-1 line-clamp-2">
+          Live preview generated for this link. No description provided by the
+          API.
+        </p>
+
+        {data.screenshot && (
           <img
-            src={data.image}
+            src={data.screenshot}
             alt="preview"
             className="rounded-md w-full mt-3 border border-line"
           />
         )}
 
-        <p className="text-[11px] text-muted mt-2">{data.domain}</p>
+        <p className="text-[11px] text-muted mt-2">
+          {data.domain || data.url || "—"}
+        </p>
       </div>
     </div>
   );
